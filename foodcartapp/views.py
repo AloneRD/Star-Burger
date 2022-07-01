@@ -3,6 +3,7 @@ from django.http import JsonResponse
 from django.templatetags.static import static
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+from rest_framework import status
 
 from .models import Order
 from .models import OrderItem
@@ -62,9 +63,18 @@ def product_list_api(request):
 
 @api_view(['POST'])
 def register_order(request):
-    print(request.data)
     received_order = request.data
-    order_items, firstname, last_name, phone, delivery_address = received_order.values()
+    try:
+        order_items, firstname, last_name, phone, delivery_address = received_order.values()
+    except:
+        content = {"error": "required fields are not filled"}
+        return Response(content, status=status.HTTP_400_BAD_REQUEST)
+    if not isinstance(order_items, list):
+        content = {"error": "products: Expected a list with values, but got 'str'"}
+    if not order_items or len(order_items) == 0:
+        content = {"error": "products can not be empty"}
+    if content:
+        return Response(content, status=status.HTTP_400_BAD_REQUEST)
     new_order = Order.objects.create(
         first_name=firstname,
         last_name=last_name,
