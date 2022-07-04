@@ -1,4 +1,3 @@
-import json
 from django.http import JsonResponse
 from django.templatetags.static import static
 from rest_framework.decorators import api_view
@@ -69,11 +68,21 @@ def register_order(request):
     except:
         content = {"error": "required fields are not filled"}
         return Response(content, status=status.HTTP_400_BAD_REQUEST)
-    if not isinstance(order_items, list):
+    if not firstname and not last_name and not phone and not delivery_address:
+        content = {"error": "firstname, lastname, phonenumber, address: can not be empty"}
+    elif not isinstance(firstname, str):
+        content = {"error": "firstname: Not a valid string"}
+    elif not firstname:
+        content = {"error": "firstname: can not be empty"}
+    elif not isinstance(order_items, list):
         content = {"error": "products: Expected a list with values, but got 'str'"}
-    if not order_items or len(order_items) == 0:
+    elif not order_items or len(order_items) == 0:
         content = {"error": "products can not be empty"}
-    if content:
+    elif not phone:
+        content = {"error": "phone: can not be empty"}
+    elif phone.count('0') > 9:
+        content = {"error": "phonenumber: Invalid phone number entered"}
+    if 'content' in locals():
         return Response(content, status=status.HTTP_400_BAD_REQUEST)
     new_order = Order.objects.create(
         first_name=firstname,
@@ -83,7 +92,11 @@ def register_order(request):
     )
     for order_item in order_items:
         product_id, quantity = order_item.values()
-        product = Product.objects.get(id=product_id)
+        try:
+            product = Product.objects.get(id=product_id)
+        except:
+            content = {"error": "products: Invalid primary key 'product_id'"}
+            return Response(content, status=status.HTTP_400_BAD_REQUEST)
         OrderItem.objects.create(
             order=new_order,
             product=product,
