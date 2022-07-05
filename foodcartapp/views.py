@@ -1,8 +1,10 @@
+from pyexpat import model
 from django.http import JsonResponse
 from django.templatetags.static import static
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.serializers import ModelSerializer
 
 from .models import Order
 from .models import OrderItem
@@ -60,46 +62,32 @@ def product_list_api(request):
         'indent': 4,
     })
 
+
+class OrderItemSerializer(ModelSerializer):
+    class Meta:
+        model = OrderItem
+        fields = ['product','quantity']
+
+
+class OrderSerializer(ModelSerializer):
+    products = OrderItemSerializer(many=True, allow_empty=False)
+
+    class Meta:
+        model = Order
+        fields = '__all__'
+
+
 @api_view(['POST'])
 def register_order(request):
     received_order = request.data
-    try:
-        order_items, firstname, last_name, phone, delivery_address = received_order.values()
-    except:
-        content = {"error": "required fields are not filled"}
-        return Response(content, status=status.HTTP_400_BAD_REQUEST)
-    if not firstname and not last_name and not phone and not delivery_address:
-        content = {"error": "firstname, lastname, phonenumber, address: can not be empty"}
-    elif not isinstance(firstname, str):
-        content = {"error": "firstname: Not a valid string"}
-    elif not firstname:
-        content = {"error": "firstname: can not be empty"}
-    elif not isinstance(order_items, list):
-        content = {"error": "products: Expected a list with values, but got 'str'"}
-    elif not order_items or len(order_items) == 0:
-        content = {"error": "products can not be empty"}
-    elif not phone:
-        content = {"error": "phone: can not be empty"}
-    elif phone.count('0') > 9:
-        content = {"error": "phonenumber: Invalid phone number entered"}
-    if 'content' in locals():
-        return Response(content, status=status.HTTP_400_BAD_REQUEST)
+    serializer = OrderSerializer(data=received_order)
+    serializer.is_valid(raise_exception=True)
     new_order = Order.objects.create(
-        first_name=firstname,
-        last_name=last_name,
-        phone=phone,
-        delivery_address=delivery_address
+        firstname=serializer.validated_data['firstname'],
+        lastname=serializer.validated_data['lastname'],
+        phonenumber=serializer.validated_data['phonenumber'],
+        address=serializer.validated_data['address']
     )
-    for order_item in order_items:
-        product_id, quantity = order_item.values()
-        try:
-            product = Product.objects.get(id=product_id)
-        except:
-            content = {"error": "products: Invalid primary key 'product_id'"}
-            return Response(content, status=status.HTTP_400_BAD_REQUEST)
-        OrderItem.objects.create(
-            order=new_order,
-            product=product,
-            quantity=quantity
-        )
+    order_items = [OrderItem(order=new_order,**fields) for fields in serializer.validated_data['products']]
+    OrderItem.objects.bulk_create(order_items)
     return Response({})
