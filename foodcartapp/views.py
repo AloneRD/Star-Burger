@@ -3,8 +3,8 @@ from django.http import JsonResponse
 from django.templatetags.static import static
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from rest_framework import status
 from rest_framework.serializers import ModelSerializer
+from rest_framework.renderers import JSONRenderer
 
 from .models import Order
 from .models import OrderItem
@@ -66,11 +66,11 @@ def product_list_api(request):
 class OrderItemSerializer(ModelSerializer):
     class Meta:
         model = OrderItem
-        fields = ['product','quantity']
+        fields = ['product', 'quantity']
 
 
 class OrderSerializer(ModelSerializer):
-    products = OrderItemSerializer(many=True, allow_empty=False)
+    products = OrderItemSerializer(many=True, allow_empty=False, write_only=True)
 
     class Meta:
         model = Order
@@ -88,6 +88,7 @@ def register_order(request):
         phonenumber=serializer.validated_data['phonenumber'],
         address=serializer.validated_data['address']
     )
-    order_items = [OrderItem(order=new_order,**fields) for fields in serializer.validated_data['products']]
+    order_items = [OrderItem(order=new_order, **fields) for fields in serializer.validated_data['products']]
     OrderItem.objects.bulk_create(order_items)
-    return Response({})
+
+    return Response(JSONRenderer().render(serializer.data,'Accept: application/json; indent=4'))
