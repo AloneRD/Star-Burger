@@ -1,3 +1,4 @@
+from pyexpat import model
 from random import choices
 from django.db import models
 from django.core.validators import MinValueValidator
@@ -164,6 +165,10 @@ class Order(models.Model):
         verbose_name="адрес доставки",
         db_index=True
         )
+    comment = models.TextField(
+        blank=True,
+        verbose_name="комментарий"
+    )
     custom_manager = CustomQuerySet.as_manager()
 
     class Meta:
