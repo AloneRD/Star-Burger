@@ -1,4 +1,3 @@
-from pyexpat import model
 from django.http import JsonResponse
 from django.templatetags.static import static
 from rest_framework.decorators import api_view
@@ -93,4 +92,4 @@ def register_order(request):
     order_items = [OrderItem(order=new_order, **fields) for fields in serializer.validated_data['products']]
     OrderItem.objects.bulk_create(order_items)
 
-    return Response(JSONRenderer().render(serializer.data,'Accept: application/json; indent=4'))
+    return Response(JSONRenderer().render(serializer.data, 'Accept: application/json; indent=4'))

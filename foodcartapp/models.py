@@ -1,3 +1,4 @@
+from random import choices
 from django.db import models
 from django.core.validators import MinValueValidator
 
@@ -133,6 +134,20 @@ class CustomQuerySet(models.QuerySet):
 
 
 class Order(models.Model):
+    choices_status_order = [
+        ('Необработанный', 'Необработанный'),
+        ('Сборка', 'Сборка'),
+        ('Доставка', 'Доставка'),
+        ('Завершен', 'Завершен')
+
+    ]
+    status = models.CharField(
+        max_length=50,
+        choices=choices_status_order,
+        verbose_name='статус',
+        default='Необработанный',
+        db_index=True
+    )
     firstname = models.CharField(
         max_length=200,
         verbose_name="имя",
