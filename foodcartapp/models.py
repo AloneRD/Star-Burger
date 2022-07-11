@@ -6,7 +6,6 @@ from phonenumber_field.modelfields import PhoneNumberField
 from django.db.models import Sum
 
 
-
 class Restaurant(models.Model):
     name = models.CharField(
         'название',
@@ -142,6 +141,10 @@ class Order(models.Model):
         ('Завершен', 'Завершен')
 
     ]
+    choices_payment_method = [
+        ('Электронно', 'Электронно'),
+        ('Наличностью', 'Наличностью'),
+    ]
     status = models.CharField(
         max_length=50,
         choices=choices_status_order,
@@ -169,6 +172,13 @@ class Order(models.Model):
         blank=True,
         verbose_name="комментарий"
     )
+    payment_method = models.CharField(
+        max_length=500,
+        choices=choices_payment_method,
+        verbose_name="способ оплаты",
+        db_index=True,
+        default='Наличностью'
+        )
     registration_time = models.DateTimeField(
         auto_now_add=True,
         db_index=True,
