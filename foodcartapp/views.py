@@ -83,13 +83,15 @@ def register_order(request):
     received_order = request.data
     serializer = OrderSerializer(data=received_order)
     serializer.is_valid(raise_exception=True)
-    new_order = Order.objects.create(
+    new_order = Order.custom_manager.create(
         firstname=serializer.validated_data['firstname'],
         lastname=serializer.validated_data['lastname'],
         phonenumber=serializer.validated_data['phonenumber'],
         address=serializer.validated_data['address']
     )
     order_items = [OrderItem(order=new_order, **fields) for fields in serializer.validated_data['products']]
+    for order_item in order_items:
+        order_item.cost = order_item.quantity * order_item.product.price
     OrderItem.objects.bulk_create(order_items)
 
     return Response(JSONRenderer().render(serializer.data, 'Accept: application/json; indent=4'))

@@ -2,9 +2,9 @@ from pyexpat import model
 from random import choices
 from django.db import models
 from django.core.validators import MinValueValidator
-
 from phonenumber_field.modelfields import PhoneNumberField
 from django.db.models import Sum
+
 
 
 class Restaurant(models.Model):
@@ -169,6 +169,23 @@ class Order(models.Model):
         blank=True,
         verbose_name="комментарий"
     )
+    registration_time = models.DateTimeField(
+        auto_now_add=True,
+        db_index=True,
+        verbose_name='дата и время регистрации'
+    )
+    call_time = models.DateTimeField(
+        blank=True,
+        null=True,
+        db_index=True,
+        verbose_name='дата и время звонка'
+    )
+    delivery_time = models.DateTimeField(
+        blank=True,
+        null=True,
+        db_index=True,
+        verbose_name='дата и время доставки'
+    )
     custom_manager = CustomQuerySet.as_manager()
 
     class Meta:
@@ -198,7 +215,6 @@ class OrderItem(models.Model):
         decimal_places=2,
         max_digits=6,
         blank=True,
-        default=0.00,
         validators=[MinValueValidator(0)],
         verbose_name="стоимость"
         )
