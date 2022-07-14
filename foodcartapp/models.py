@@ -196,6 +196,14 @@ class Order(models.Model):
         db_index=True,
         verbose_name='дата и время доставки'
     )
+    restaurant = models.ForeignKey(
+        Restaurant,
+        related_name='order_restaurant',
+        verbose_name="ресторан",
+        on_delete=models.CASCADE,
+        blank=True,
+        null=True
+    )
     custom_manager = CustomQuerySet.as_manager()
 
     class Meta:

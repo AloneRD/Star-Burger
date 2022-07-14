@@ -1,14 +1,16 @@
+from zoneinfo import available_timezones
 from django import forms
 from django.shortcuts import redirect, render
 from django.views import View
 from django.urls import reverse_lazy
 from django.contrib.auth.decorators import user_passes_test
+from django.db.models import Prefetch
 
 from django.contrib.auth import authenticate, login
 from django.contrib.auth import views as auth_views
 
-from foodcartapp.models import Order
-from foodcartapp.models import Product, Restaurant
+from foodcartapp.models import Order, OrderItem
+from foodcartapp.models import Product, Restaurant, RestaurantMenuItem
 
 
 class Login(forms.Form):
@@ -97,7 +99,26 @@ def view_restaurants(request):
 
 @user_passes_test(is_manager, login_url='restaurateur:login')
 def view_orders(request):
-    pending_orders = Order.custom_manager.summa().order_by('id').filter(status="Необработанный")
+    order_items = OrderItem.objects.select_related("product")
+    pending_orders = Order.custom_manager.prefetch_related(Prefetch('items', queryset=order_items)).summa().order_by('id').filter(status="Необработанный")
+    restaurants_menu = RestaurantMenuItem.objects.select_related('product').select_related('restaurant')
+    available_restaurants = []
+    for pending_order in pending_orders:
+        available_restaurants_in_order = []
+        pending_order_items = pending_order.items.all()
+        pending_order_producs = [pending_order_item.product for pending_order_item in pending_order_items]
+        for product in pending_order_producs:
+            available_restaurants_for_product = [menu_item.restaurant.name for menu_item in restaurants_menu if menu_item.product==product]
+            available_restaurants_in_order.append(available_restaurants_for_product)
+        if len(available_restaurants_in_order)>1:
+            for restaurants in range(len(available_restaurants_in_order)-1):
+                available_restaurants_in_order[restaurants] = list(set(available_restaurants_in_order[restaurants]) & set(available_restaurants_in_order[restaurants+1]))
+        pending_order.available_restaurants = ''.join(available_restaurants_in_order[0])
     return render(request, template_name='order_items.html', context={
-        'orders': pending_orders
+        'orders': pending_orders,
+        'available_restaurants': available_restaurants
     })
+
+# for pending_order in pending_orders:
+#         pending_order_items = pending_order.items.select_related('product')
+#         pending_order_producs = [pending_order_item.product for pending_order_item in pending_order_items]
