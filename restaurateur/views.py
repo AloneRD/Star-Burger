@@ -11,7 +11,7 @@ from django.db.models import Prefetch
 from django.contrib.auth import authenticate, login
 from django.contrib.auth import views as auth_views
 
-from foodcartapp.models import Order, OrderItem
+from foodcartapp.models import Order, OrderItem, GeoPositionAddress
 from foodcartapp.models import Product, Restaurant, RestaurantMenuItem
 
 
@@ -122,7 +122,16 @@ def view_orders(request):
 
 
 def calculation_of_distance_restaurants(order, available_restaurants_in_order):
-    deleverey_coordinates = fetch_coordinates(settings.YANDEX_GEOCODER_TOKEN, order.address)
+    try:
+        cache_address = GeoPositionAddress.objects.get(address=str(order.address))
+        deleverey_coordinates = (cache_address.lon, cache_address.lat)
+    except:
+        deleverey_coordinates = fetch_coordinates(settings.YANDEX_GEOCODER_TOKEN, order.address)
+        GeoPositionAddress.objects.create(
+            address=order.address,
+            lon=deleverey_coordinates[0],
+            lat=deleverey_coordinates[1]
+        )
     available_restaurants = []
     if len(available_restaurants_in_order) > 0:
         for restaurant in available_restaurants_in_order:

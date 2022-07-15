@@ -246,3 +246,23 @@ class OrderItem(models.Model):
 
     def __str__(self):
         return f"Заказ №{self.order.id} - {self.product.name}"
+
+
+class GeoPositionAddress(models.Model):
+    address = models.CharField(
+        max_length=500,
+        verbose_name="адрес доставки",
+        db_index=True
+        )
+    lon = models.FloatField(verbose_name="долгота")
+    lat = models.FloatField(verbose_name="широта")
+
+    class Meta:
+        verbose_name = 'координаты адресов заказов'
+        verbose_name_plural = 'координаты адреса заказа'
+        unique_together = [
+            ['lon', 'lat']
+        ]
+
+    def __str__(self):
+        return f"{self.address}[{self.lon}, {self.lat}]"
