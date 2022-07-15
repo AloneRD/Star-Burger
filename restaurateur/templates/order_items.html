@@ -36,9 +36,11 @@
         <td>{{order.address}}</td>
         <td>
           {% if order.restaurant %}
-            {{order.restaurant}}
+            Готовит {{order.restaurant.name}}
+          {% elif order.available_restaurants %}
+            Может быть приготовлен: <br> {{order.available_restaurants}}
           {% else %}
-            {{order.available_restaurants}}
+            Нет подходящих ресторанов
           {% endif %}
         </td>
         <td>{{order.comment}}</td>
