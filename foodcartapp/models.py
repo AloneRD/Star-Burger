@@ -252,7 +252,8 @@ class GeoPositionAddress(models.Model):
     address = models.CharField(
         max_length=500,
         verbose_name="адрес доставки",
-        db_index=True
+        db_index=True,
+        unique=True
         )
     lon = models.FloatField(verbose_name="долгота")
     lat = models.FloatField(verbose_name="широта")
