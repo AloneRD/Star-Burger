@@ -177,7 +177,7 @@ class Order(models.Model):
         choices=choices_payment_method,
         verbose_name="способ оплаты",
         db_index=True,
-        default='Наличностью'
+        default='Электронно'
         )
     registration_time = models.DateTimeField(
         auto_now_add=True,
@@ -198,7 +198,7 @@ class Order(models.Model):
     )
     restaurant = models.ForeignKey(
         Restaurant,
-        related_name='order_restaurant',
+        related_name='orders',
         verbose_name="ресторан",
         on_delete=models.CASCADE,
         blank=True,
@@ -225,7 +225,7 @@ class OrderItem(models.Model):
     product = models.ForeignKey(
         Product,
         on_delete=models.CASCADE,
-        related_name='order',
+        related_name='order_items',
         verbose_name='позиция в заказе',
     )
     quantity = models.IntegerField(default=1)
