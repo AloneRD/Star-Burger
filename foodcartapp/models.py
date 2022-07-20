@@ -134,20 +134,20 @@ class CustomQuerySet(models.QuerySet):
 
 
 class Order(models.Model):
-    choices_status_order = [
+    CHOICES_STATUS_ORDER = [
         ('Необработанный', 'Необработанный'),
         ('Сборка', 'Сборка'),
         ('Доставка', 'Доставка'),
         ('Завершен', 'Завершен')
 
     ]
-    choices_payment_method = [
+    CHOICES_PAYMENT_METHOD = [
         ('Электронно', 'Электронно'),
         ('Наличностью', 'Наличностью'),
     ]
     status = models.CharField(
         max_length=50,
-        choices=choices_status_order,
+        choices=CHOICES_STATUS_ORDER,
         verbose_name='статус',
         default='Необработанный',
         db_index=True
@@ -174,7 +174,7 @@ class Order(models.Model):
     )
     payment_method = models.CharField(
         max_length=500,
-        choices=choices_payment_method,
+        choices=CHOICES_PAYMENT_METHOD,
         verbose_name="способ оплаты",
         db_index=True,
         default='Электронно'
