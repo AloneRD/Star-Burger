@@ -94,4 +94,4 @@ def register_order(request):
         order_item.cost = order_item.quantity * order_item.product.price
     OrderItem.objects.bulk_create(order_items)
 
-    return Response(JSONRenderer().render(serializer.data, 'Accept: application/json; indent=4'))
+    return Response(JSONRenderer(serializer.data))
