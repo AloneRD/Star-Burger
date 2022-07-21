@@ -1,4 +1,5 @@
 from foodcartapp.models import Order, OrderItem, GeoPositionAddress
+from django.core.exceptions import ObjectDoesNotExist
 from django.conf import settings
 from geopy import distance
 import requests
@@ -6,9 +7,9 @@ import requests
 
 def calculation_of_distance_restaurants(order, available_restaurants_in_order):
     try:
-        cache_address = GeoPositionAddress.objects.get(address=str(order.address))
-        deleverey_coordinates = (cache_address.lon, cache_address.lat)
-    except:
+        adress_cache = GeoPositionAddress.objects.get(address=order.address)
+        deleverey_coordinates = (adress_cache.lon, adress_cache.lat)
+    except ObjectDoesNotExist:
         deleverey_coordinates = fetch_coordinates(settings.YANDEX_GEOCODER_TOKEN, order.address)
         GeoPositionAddress.objects.create(
             address=order.address,
