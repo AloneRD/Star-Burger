@@ -5,21 +5,22 @@ from geopy import distance
 import requests
 
 
-def calculation_of_distance_restaurants(order, available_restaurants_in_order):
+def calculate_distances_restaurants(order, available_restaurants_in_order):
     try:
         adress_cache = GeoPositionAddress.objects.get(address=order.address)
-        deleverey_coordinates = (adress_cache.lon, adress_cache.lat)
+        lon, lat = (adress_cache.lon, adress_cache.lat)
+        deleverey_coordinates = (lon, lat)
     except ObjectDoesNotExist:
         deleverey_coordinates = fetch_coordinates(settings.YANDEX_GEOCODER_TOKEN, order.address)
         GeoPositionAddress.objects.create(
             address=order.address,
-            lon=deleverey_coordinates[0],
-            lat=deleverey_coordinates[1]
+            lon=lon,
+            lat=lat
         )
     available_restaurants = []
     if len(available_restaurants_in_order) > 0:
         for restaurant in available_restaurants_in_order:
-            restaurans_coordinates = fetch_coordinates(settings.YANDEX_GEOCODER_TOKEN, restaurant)
+            restaurans_coordinates = (restaurant.lon, restaurant.lat)
             distance_restaurants = distance.distance(restaurans_coordinates, deleverey_coordinates)
             restaurant = f"{restaurant} {distance_restaurants}"
             available_restaurants.append(restaurant)
