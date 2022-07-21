@@ -11,7 +11,7 @@ from django.contrib.auth import views as auth_views
 from foodcartapp.models import Order, OrderItem
 from foodcartapp.models import Product, Restaurant, RestaurantMenuItem
 
-from star_burger.geo_distance import calculation_of_distance_restaurants
+from star_burger.geo_distance import calculate_distances_restaurants
 
 class Login(forms.Form):
     username = forms.CharField(
@@ -112,7 +112,7 @@ def view_orders(request):
         if len(available_restaurants_in_order) > 1:
             for restaurants in range(len(available_restaurants_in_order)-1):
                 available_restaurants_in_order[restaurants] = list(set(available_restaurants_in_order[restaurants]) & set(available_restaurants_in_order[restaurants+1]))
-        pending_order = calculation_of_distance_restaurants(pending_order, available_restaurants_in_order[0])
+        pending_order = calculate_distances_restaurants(pending_order, available_restaurants_in_order[0])
     return render(request, template_name='order_items.html', context={
         'orders': pending_orders,
     })
