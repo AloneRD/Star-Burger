@@ -1,7 +1,4 @@
-import requests
-from geopy import distance
 from django import forms
-from django.conf import settings
 from django.shortcuts import redirect, render
 from django.views import View
 from django.urls import reverse_lazy
@@ -11,9 +8,10 @@ from django.db.models import Prefetch
 from django.contrib.auth import authenticate, login
 from django.contrib.auth import views as auth_views
 
-from foodcartapp.models import Order, OrderItem, GeoPositionAddress
+from foodcartapp.models import Order, OrderItem
 from foodcartapp.models import Product, Restaurant, RestaurantMenuItem
 
+from star_burger.geo_distance import calculation_of_distance_restaurants
 
 class Login(forms.Form):
     username = forms.CharField(
@@ -111,51 +109,10 @@ def view_orders(request):
         for product in pending_order_producs:
             available_restaurants_for_product = [menu_item.restaurant.name for menu_item in restaurants_menu if menu_item.product==product]
             available_restaurants_in_order.append(available_restaurants_for_product)
-        if len(available_restaurants_in_order)>1:
+        if len(available_restaurants_in_order) > 1:
             for restaurants in range(len(available_restaurants_in_order)-1):
                 available_restaurants_in_order[restaurants] = list(set(available_restaurants_in_order[restaurants]) & set(available_restaurants_in_order[restaurants+1]))
         pending_order = calculation_of_distance_restaurants(pending_order, available_restaurants_in_order[0])
-        print(pending_order.available_restaurants)
     return render(request, template_name='order_items.html', context={
         'orders': pending_orders,
     })
-
-
-def calculation_of_distance_restaurants(order, available_restaurants_in_order):
-    try:
-        cache_address = GeoPositionAddress.objects.get(address=str(order.address))
-        deleverey_coordinates = (cache_address.lon, cache_address.lat)
-    except:
-        deleverey_coordinates = fetch_coordinates(settings.YANDEX_GEOCODER_TOKEN, order.address)
-        GeoPositionAddress.objects.create(
-            address=order.address,
-            lon=deleverey_coordinates[0],
-            lat=deleverey_coordinates[1]
-        )
-    available_restaurants = []
-    if len(available_restaurants_in_order) > 0:
-        for restaurant in available_restaurants_in_order:
-            restaurans_coordinates = fetch_coordinates(settings.YANDEX_GEOCODER_TOKEN, restaurant)
-            distance_restaurants = distance.distance(restaurans_coordinates, deleverey_coordinates)
-            restaurant = f"{restaurant} {distance_restaurants}"
-            available_restaurants.append(restaurant)
-    order.available_restaurants = ' '.join(available_restaurants)
-    return order
-
-
-def fetch_coordinates(apikey, address):
-    base_url = "https://geocode-maps.yandex.ru/1.x"
-    response = requests.get(base_url, params={
-        "geocode": address,
-        "apikey": apikey,
-        "format": "json",
-    })
-    response.raise_for_status()
-    found_places = response.json()['response']['GeoObjectCollection']['featureMember']
-
-    if not found_places:
-        return None
-
-    most_relevant = found_places[0]
-    lon, lat = most_relevant['GeoObject']['Point']['pos'].split(" ")
-    return lon, lat
