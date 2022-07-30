@@ -7,24 +7,25 @@ import requests
 
 def calculate_distances_restaurants(order, available_restaurants_in_order):
     try:
-        adress_cache = GeoPositionAddress.objects.get(address=order.address)
-        lon, lat = (adress_cache.lon, adress_cache.lat)
-        deleverey_coordinates = (lon, lat)
+        address_cache = GeoPositionAddress.objects.get(address=order.address)
+        lon, lat = (address_cache.lon, address_cache.lat)
+        delivery_coordinates = (lon, lat)
     except ObjectDoesNotExist:
-        deleverey_coordinates = fetch_coordinates(settings.YANDEX_GEOCODER_TOKEN, order.address)
+        delivery_coordinates = fetch_coordinates(settings.YANDEX_GEOCODER_TOKEN, order.address)
+        lon, lat = delivery_coordinates
         GeoPositionAddress.objects.create(
             address=order.address,
             lon=lon,
             lat=lat
         )
     available_restaurants = []
-    if len(available_restaurants_in_order) > 0:
-        for restaurant in available_restaurants_in_order:
-            restaurans_coordinates = (restaurant.lon, restaurant.lat)
-            distance_restaurants = distance.distance(restaurans_coordinates, deleverey_coordinates)
-            restaurant = f"{restaurant} {distance_restaurants}"
+    if available_restaurants_in_order:
+        for available_restaurant in available_restaurants_in_order:
+            restaurans_coordinates = (available_restaurant.lon, available_restaurant.lat)
+            restaurant_distance = distance.distance(restaurans_coordinates, delivery_coordinates)
+            restaurant = f"{available_restaurant} {restaurant_distance}"
             available_restaurants.append(restaurant)
-    order.available_restaurants = ' '.join(available_restaurants)
+    order.available_restaurants = available_restaurants
     return order
 
 
