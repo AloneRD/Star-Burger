@@ -11,7 +11,8 @@ from django.contrib.auth import views as auth_views
 from foodcartapp.models import Order, OrderItem
 from foodcartapp.models import Product, Restaurant, RestaurantMenuItem
 
-from star_burger.geo_distance import calculate_distances_restaurants
+from restaurateur.geo_distance import calculate_distances_restaurants
+
 
 class Login(forms.Form):
     username = forms.CharField(
