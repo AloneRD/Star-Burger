@@ -255,8 +255,8 @@ class GeoPositionAddress(models.Model):
         db_index=True,
         unique=True
         )
-    lon = models.FloatField(verbose_name="долгота")
-    lat = models.FloatField(verbose_name="широта")
+    lon = models.FloatField(verbose_name="долгота", blank=True)
+    lat = models.FloatField(verbose_name="широта", blank=True)
 
     class Meta:
         verbose_name = 'координаты адресов заказов'
