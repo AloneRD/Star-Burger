@@ -174,11 +174,11 @@ class Order(models.Model):
         verbose_name="комментарий"
     )
     payment_method = models.CharField(
-        max_length=500,
+        max_length=150,
         choices=CHOICES_PAYMENT_METHOD,
         verbose_name="способ оплаты",
         db_index=True,
-        default='Электронно'
+        default='Не выбран'
         )
     registration_time = models.DateTimeField(
         auto_now_add=True,
