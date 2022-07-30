@@ -1,3 +1,4 @@
+from tabnanny import verbose
 from django.db import models
 from django.core.validators import MinValueValidator
 from phonenumber_field.modelfields import PhoneNumberField
@@ -163,7 +164,7 @@ class Order(models.Model):
         verbose_name="фамилия",
         db_index=True
         )
-    phonenumber = PhoneNumberField()
+    phonenumber = PhoneNumberField(verbose_name="номер телефона")
     address = models.CharField(
         max_length=500,
         verbose_name="адрес доставки",
