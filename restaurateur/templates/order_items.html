@@ -38,7 +38,10 @@
           {% if order.restaurant %}
             Готовит {{order.restaurant.name}}
           {% elif order.available_restaurants %}
-            Может быть приготовлен: <br> {{order.available_restaurants}}
+          Может быть приготовлен: <br>
+            {% for available_restaurant in order.available_restaurants%}
+              {{available_restaurant}} <br>
+            {% endfor %}
           {% else %}
             Нет подходящих ресторанов
           {% endif %}
