@@ -35,8 +35,8 @@
         <td>{{order.phonenumber}}</td>
         <td>{{order.address}}</td>
         <td>
-          {% if order.restaurant %}
-            Готовит {{order.restaurant.name}}
+          {% if order.order_fulfilling_restaurant %}
+            Готовит {{order.order_fulfilling_restaurant.name}}
           {% elif order.available_restaurants %}
           Может быть приготовлен: <br>
             {% for available_restaurant in order.available_restaurants%}

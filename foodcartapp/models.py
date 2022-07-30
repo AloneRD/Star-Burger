@@ -197,10 +197,10 @@ class Order(models.Model):
         db_index=True,
         verbose_name='дата и время доставки'
     )
-    restaurant = models.ForeignKey(
+    order_fulfilling_restaurant = models.ForeignKey(
         Restaurant,
         related_name='orders',
-        verbose_name="ресторан",
+        verbose_name="ресторан выполняющий заказ",
         on_delete=models.CASCADE,
         blank=True,
         null=True
@@ -233,7 +233,6 @@ class OrderItem(models.Model):
     cost = models.DecimalField(
         decimal_places=2,
         max_digits=6,
-        blank=True,
         validators=[MinValueValidator(0)],
         verbose_name="стоимость"
         )
