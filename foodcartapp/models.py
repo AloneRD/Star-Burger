@@ -2,6 +2,7 @@ from django.db import models
 from django.core.validators import MinValueValidator
 from phonenumber_field.modelfields import PhoneNumberField
 from django.db.models import Sum
+from django.core.validators import MinValueValidator
 
 
 class Restaurant(models.Model):
@@ -228,7 +229,7 @@ class OrderItem(models.Model):
         related_name='order_items',
         verbose_name='позиция в заказе',
     )
-    quantity = models.IntegerField(default=1)
+    quantity = models.IntegerField(default=1, validators=[MinValueValidator(1)])
     cost = models.DecimalField(
         decimal_places=2,
         max_digits=6,
