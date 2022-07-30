@@ -3,7 +3,6 @@ from django.templatetags.static import static
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.serializers import ModelSerializer
-from rest_framework.renderers import JSONRenderer
 from django.db import transaction
 
 from .models import Order
@@ -94,4 +93,4 @@ def register_order(request):
         order_item.cost = order_item.quantity * order_item.product.price
     OrderItem.objects.bulk_create(order_items)
 
-    return Response(JSONRenderer(serializer.data))
+    return Response(serializer.data)
