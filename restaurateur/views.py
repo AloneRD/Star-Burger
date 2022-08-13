@@ -101,7 +101,12 @@ def view_restaurants(request):
 @user_passes_test(is_manager, login_url='restaurateur:login')
 def view_orders(request):
     order_items = OrderItem.objects.select_related("product")
-    pending_orders = Order.custom_manager.prefetch_related(Prefetch('items', queryset=order_items)).prefetch_related('order_fulfilling_restaurant').calculate_total_cost_of_order_items().order_by('id').filter(status="Необработанный")
+    pending_orders = Order.custom_manager\
+        .prefetch_related(Prefetch('items', queryset=order_items))\
+        .prefetch_related('order_fulfilling_restaurant')\
+        .calculate_total_cost_of_order_items()\
+        .order_by('id')\
+        .filter(status="Необработанный")
     restaurants_menu = RestaurantMenuItem.objects.select_related('product').select_related('restaurant')
     for pending_order in pending_orders:
         available_restaurants_in_order = []
@@ -111,8 +116,11 @@ def view_orders(request):
             available_restaurants_for_product = [menu_item.restaurant for menu_item in restaurants_menu if menu_item.product==product]
             available_restaurants_in_order.append(available_restaurants_for_product)
         if len(available_restaurants_in_order) > 1:
-            for restaurants in range(len(available_restaurants_in_order)-1):
-                available_restaurants_in_order[restaurants] = list(set(available_restaurants_in_order[restaurants]) & set(available_restaurants_in_order[restaurants+1]))
+            for restaurant_number, restaurant in enumerate(available_restaurants_in_order):
+                try:
+                    available_restaurants_in_order[restaurant_number] = list(set(available_restaurants_in_order[restaurant_number]) & set(available_restaurants_in_order[restaurant_number+1]))
+                except IndexError:
+                    pass
         pending_order = calculate_restoraunts_distances(pending_order, available_restaurants_in_order[0])
     return render(request, template_name='order_items.html', context={
         'orders': pending_orders,
