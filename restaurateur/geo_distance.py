@@ -5,7 +5,7 @@ from geopy import distance
 import requests
 
 
-def calculate_distances_restaurants(order, available_restaurants_in_order):
+def calculate_restoraunts_distances(order, available_restaurants_in_order):
     try:
         address_cache = GeoPositionAddress.objects.get(address=order.address)
         lon, lat = (address_cache.lon, address_cache.lat)
