@@ -12,19 +12,21 @@ def calculate_distances_restaurants(order, available_restaurants_in_order):
         delivery_coordinates = (lon, lat)
     except ObjectDoesNotExist:
         delivery_coordinates = fetch_coordinates(settings.YANDEX_GEOCODER_TOKEN, order.address)
-        lon, lat = delivery_coordinates
-        GeoPositionAddress.objects.create(
-            address=order.address,
-            lon=lon,
-            lat=lat
-        )
+        if delivery_coordinates:
+            lon, lat = delivery_coordinates
+            GeoPositionAddress.objects.create(
+                address=order.address,
+                lon=lon,
+                lat=lat
+            )
     available_restaurants = []
-    if available_restaurants_in_order:
-        for available_restaurant in available_restaurants_in_order:
-            restaurans_coordinates = (available_restaurant.lon, available_restaurant.lat)
-            restaurant_distance = distance.distance(restaurans_coordinates, delivery_coordinates)
-            restaurant = f"{available_restaurant} {restaurant_distance}"
-            available_restaurants.append(restaurant)
+    for available_restaurant in available_restaurants_in_order:
+        if not available_restaurant:
+            continue
+        restaurans_coordinates = (available_restaurant.lon, available_restaurant.lat)
+        restaurant_distance = distance.distance(restaurans_coordinates, delivery_coordinates)
+        restaurant = f"{available_restaurant} {restaurant_distance}"
+        available_restaurants.append(restaurant)
     order.available_restaurants = available_restaurants
     return order
 
