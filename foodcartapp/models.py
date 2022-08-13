@@ -131,8 +131,8 @@ class RestaurantMenuItem(models.Model):
 
 class CustomQuerySet(models.QuerySet):
     def calculate_total_cost_of_order_items(self):
-        order = self.annotate(summa=Sum('items__cost'))
-        return order
+        orders = self.annotate(summa=Sum('items__cost'))
+        return orders
 
 
 class Order(models.Model):
@@ -256,8 +256,8 @@ class GeoPositionAddress(models.Model):
         db_index=True,
         unique=True
         )
-    lon = models.FloatField(verbose_name="долгота", blank=True)
-    lat = models.FloatField(verbose_name="широта", blank=True)
+    lon = models.FloatField(verbose_name="долгота", blank=True, null=True)
+    lat = models.FloatField(verbose_name="широта", blank=True, null=True)
 
     class Meta:
         verbose_name = 'координаты адресов заказов'
