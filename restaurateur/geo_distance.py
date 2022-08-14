@@ -5,7 +5,7 @@ from geopy import distance
 import requests
 
 
-def calculate_restoraunts_distances(order, available_restaurants_in_order, addresses_cache):
+def calculate_distances(order, available_restaurants_in_order, addresses_cache):
     address_cache = check_cache(order.address, addresses_cache)
     if not address_cache:
         delivery_coordinates = fetch_coordinates(settings.YANDEX_GEOCODER_TOKEN, order.address)
