@@ -9,7 +9,7 @@ from django.contrib.auth import authenticate, login
 from django.contrib.auth import views as auth_views
 
 from foodcartapp.models import Order, OrderItem
-from foodcartapp.models import Product, Restaurant, RestaurantMenuItem
+from foodcartapp.models import Product, Restaurant, RestaurantMenuItem, GeoPositionAddress
 
 from restaurateur.geo_distance import calculate_restoraunts_distances
 
@@ -100,6 +100,7 @@ def view_restaurants(request):
 
 @user_passes_test(is_manager, login_url='restaurateur:login')
 def view_orders(request):
+    
     order_items = OrderItem.objects.select_related("product")
     pending_orders = Order.custom_manager\
         .prefetch_related(Prefetch('items', queryset=order_items))\
@@ -108,6 +109,7 @@ def view_orders(request):
         .order_by('id')\
         .filter(status="Необработанный")
     restaurants_menu = RestaurantMenuItem.objects.select_related('product').select_related('restaurant')
+    address_cache = GeoPositionAddress.objects.all()
     for pending_order in pending_orders:
         available_restaurants_in_order = []
         pending_order_items = pending_order.items.all()
@@ -121,7 +123,7 @@ def view_orders(request):
                     available_restaurants_in_order[restaurant_number] = list(set(available_restaurants_in_order[restaurant_number]) & set(available_restaurants_in_order[restaurant_number+1]))
                 except IndexError:
                     pass
-        pending_order = calculate_restoraunts_distances(pending_order, available_restaurants_in_order[0])
+        pending_order = calculate_restoraunts_distances(pending_order, available_restaurants_in_order[0], address_cache)
     return render(request, template_name='order_items.html', context={
         'orders': pending_orders,
     })
