@@ -131,7 +131,20 @@ class RestaurantMenuItem(models.Model):
 
 class CustomQuerySet(models.QuerySet):
     def calculate_total_cost_of_order_items(self):
-        orders = self.annotate(summa=Sum('items__cost'))
+        orders = self.annotate(sum=Sum('items__cost'))
+        return orders
+
+    def find_available_restaurans(self, restaurants_menu):
+        orders = self
+        for order in orders:
+            available_restaurants_in_order = []
+            pending_order_items = order.items.all()
+            pending_order_producs = [pending_order_item.product for pending_order_item in pending_order_items]
+            for product in pending_order_producs:
+                available_restaurants_for_product = [menu_item.restaurant for menu_item in restaurants_menu if menu_item.product==product]
+                available_restaurants_in_order.append(available_restaurants_for_product)
+            
+            order.available_restaurants = available_restaurants_in_order[0]
         return orders
 
 
