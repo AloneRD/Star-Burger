@@ -1,5 +1,4 @@
 from foodcartapp.models import GeoPositionAddress
-from django.core.exceptions import ObjectDoesNotExist
 from django.conf import settings
 from geopy import distance
 import requests
@@ -15,6 +14,12 @@ def calculate_distances(order, available_restaurants_in_order, addresses_cache):
                 address=order.address,
                 lon=lon,
                 lat=lat
+            )
+        else:
+            GeoPositionAddress.objects.create(
+                address=order.address,
+                lon=0,
+                lat=0
             )
     else:
         lon, lat = (address_cache.lon, address_cache.lat)

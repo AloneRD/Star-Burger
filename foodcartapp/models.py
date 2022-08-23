@@ -1,4 +1,3 @@
-from tabnanny import verbose
 from django.db import models
 from django.core.validators import MinValueValidator
 from phonenumber_field.modelfields import PhoneNumberField
@@ -141,9 +140,9 @@ class CustomQuerySet(models.QuerySet):
             pending_order_items = order.items.all()
             pending_order_producs = [pending_order_item.product for pending_order_item in pending_order_items]
             for product in pending_order_producs:
-                available_restaurants_for_product = [menu_item.restaurant for menu_item in restaurants_menu if menu_item.product==product]
+                available_restaurants_for_product = [menu_item.restaurant for menu_item in restaurants_menu if menu_item.product == product]
                 available_restaurants_in_order.append(available_restaurants_for_product)
-            
+
             order.available_restaurants = available_restaurants_in_order[0]
         return orders
 
