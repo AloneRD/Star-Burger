@@ -138,10 +138,19 @@ class CustomQuerySet(models.QuerySet):
         for order in orders:
             available_restaurants_in_order = []
             pending_order_items = order.items.all()
-            pending_order_producs = [pending_order_item.product for pending_order_item in pending_order_items]
+            pending_order_producs = [
+                pending_order_item.product
+                for pending_order_item in pending_order_items
+                ]
             for product in pending_order_producs:
-                available_restaurants_for_product = [menu_item.restaurant for menu_item in restaurants_menu if menu_item.product == product]
-                available_restaurants_in_order.append(available_restaurants_for_product)
+                available_restaurants_for_product = [
+                    menu_item.restaurant
+                    for menu_item in restaurants_menu
+                    if menu_item.product == product
+                    ]
+                available_restaurants_in_order.append(
+                    available_restaurants_for_product
+                    )
 
             order.available_restaurants = available_restaurants_in_order[0]
         return orders
@@ -242,7 +251,10 @@ class OrderItem(models.Model):
         related_name='order_items',
         verbose_name='позиция в заказе',
     )
-    quantity = models.IntegerField(default=1, validators=[MinValueValidator(1)])
+    quantity = models.IntegerField(
+        default=1,
+        validators=[MinValueValidator(1)]
+        )
     order_total_cost = models.DecimalField(
         decimal_places=2,
         max_digits=6,

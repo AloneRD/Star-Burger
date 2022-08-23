@@ -9,7 +9,10 @@ from django.contrib.auth import authenticate, login
 from django.contrib.auth import views as auth_views
 
 from foodcartapp.models import Order, OrderItem
-from foodcartapp.models import Product, Restaurant, RestaurantMenuItem, GeoPositionAddress
+from foodcartapp.models import Product,\
+                               Restaurant,\
+                               RestaurantMenuItem,\
+                               GeoPositionAddress
 
 from restaurateur.geo_distance import calculate_distances
 
@@ -79,7 +82,10 @@ def view_products(request):
             **default_availability,
             **{item.restaurant_id: item.availability for item in product.menu_items.all()},
         }
-        orderer_availability = [availability[restaurant.id] for restaurant in restaurants]
+        orderer_availability = [
+            availability[restaurant.id]
+            for restaurant in restaurants
+            ]
 
         products_with_restaurants.append(
             (product, orderer_availability)
@@ -100,7 +106,9 @@ def view_restaurants(request):
 
 @user_passes_test(is_manager, login_url='restaurateur:login')
 def view_orders(request):
-    restaurants_menu = RestaurantMenuItem.objects.select_related('product').select_related('restaurant')
+    restaurants_menu = RestaurantMenuItem.objects.\
+        select_related('product').\
+        select_related('restaurant')
     order_items = OrderItem.objects.select_related("product")
     pending_orders = Order.custom_manager\
         .prefetch_related(Prefetch('items', queryset=order_items))\
@@ -109,7 +117,10 @@ def view_orders(request):
         .order_by('id')\
         .filter(status="Необработанный")\
         .find_available_restaurans(restaurants_menu)
-    orders_addresses = [pending_order.address for pending_order in pending_orders]
+    orders_addresses = [
+        pending_order.address
+        for pending_order in pending_orders
+        ]
     addresses = GeoPositionAddress.objects.filter(address__in=orders_addresses)
     for pending_order in pending_orders:
         pending_order = calculate_distances(

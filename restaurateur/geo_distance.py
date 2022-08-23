@@ -7,7 +7,10 @@ import requests
 def calculate_distances(order, available_restaurants_in_order, addresses_cache):
     address_cache = check_cache(order.address, addresses_cache)
     if not address_cache:
-        delivery_coordinates = fetch_coordinates(settings.YANDEX_GEOCODER_TOKEN, order.address)
+        delivery_coordinates = fetch_coordinates(
+            settings.YANDEX_GEOCODER_TOKEN,
+            order.address
+            )
         if delivery_coordinates:
             lon, lat = delivery_coordinates
             GeoPositionAddress.objects.create(
@@ -26,12 +29,20 @@ def calculate_distances(order, available_restaurants_in_order, addresses_cache):
     for available_restaurant in available_restaurants_in_order:
         if not available_restaurant:
             continue
-        restaurans_coordinates = (available_restaurant.lon, available_restaurant.lat)
+        restaurans_coordinates = (
+            available_restaurant.lon,
+            available_restaurant.lat
+            )
         if None not in delivery_coordinates:
-            restaurant_distance = distance.distance(restaurans_coordinates, delivery_coordinates)
+            restaurant_distance = distance.distance(
+                restaurans_coordinates,
+                delivery_coordinates
+                )
         else:
             restaurant_distance = "Не удалось расчитать расстояние"
-        available_restaurants.append(f"{available_restaurant}\n{restaurant_distance}")
+        available_restaurants.append(
+            f"{available_restaurant}\n{restaurant_distance}"
+            )
     order.available_restaurants = available_restaurants
     return order
 
