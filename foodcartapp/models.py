@@ -131,7 +131,7 @@ class RestaurantMenuItem(models.Model):
 
 class CustomQuerySet(models.QuerySet):
     def calculate_total_cost_of_order_items(self):
-        orders = self.annotate(sum=Sum('items__cost'))
+        orders = self.annotate(sum=Sum('items__order_total_cost'))
         return orders
 
     def find_available_restaurans(self, restaurants_menu):
