@@ -17,22 +17,21 @@ def calculate_distances(order, available_restaurants_in_order, addresses_cache):
             )
         else:
             GeoPositionAddress.objects.create(
-                address=order.address,
-                lon=0,
-                lat=0
+                address=order.address
             )
     else:
-        lon, lat = (address_cache.lon, address_cache.lat)
-        delivery_coordinates = (lon, lat)
+        delivery_coordinates = (address_cache.lon, address_cache.lat)
 
     available_restaurants = []
     for available_restaurant in available_restaurants_in_order:
         if not available_restaurant:
             continue
         restaurans_coordinates = (available_restaurant.lon, available_restaurant.lat)
-        restaurant_distance = distance.distance(restaurans_coordinates, delivery_coordinates)
-        restaurant = f"{available_restaurant} {restaurant_distance}"
-        available_restaurants.append(restaurant)
+        if None not in delivery_coordinates:
+            restaurant_distance = distance.distance(restaurans_coordinates, delivery_coordinates)
+        else:
+            restaurant_distance = "Не удалось расчитать расстояние"
+        available_restaurants.append(f"{available_restaurant}\n{restaurant_distance}")
     order.available_restaurants = available_restaurants
     return order
 
