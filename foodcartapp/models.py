@@ -151,7 +151,12 @@ class CustomQuerySet(models.QuerySet):
                 available_restaurants_in_order.append(
                     available_restaurants_for_product
                     )
-
+            if len(available_restaurants_in_order) > 1:
+                for restaurant_number, restaurant in enumerate(available_restaurants_in_order):
+                    try:
+                        available_restaurants_in_order[restaurant_number] = list(set(available_restaurants_in_order[restaurant_number]) & set(available_restaurants_in_order[restaurant_number+1]))
+                    except IndexError:
+                        pass
             order.available_restaurants = available_restaurants_in_order[0]
         return orders
 
