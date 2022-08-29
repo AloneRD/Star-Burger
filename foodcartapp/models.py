@@ -130,7 +130,7 @@ class RestaurantMenuItem(models.Model):
 
 class CustomQuerySet(models.QuerySet):
     def calculate_total_cost_of_order_items(self):
-        orders = self.annotate(sum=Sum('items__order_total_cost'))
+        orders = self.annotate(sum=Sum('items__order_position_total_cost'))
         return orders
 
     def find_available_restaurans(self, restaurants_menu):
@@ -202,24 +202,24 @@ class Order(models.Model):
         db_index=True,
         default='Не выбран'
         )
-    registration_time = models.DateTimeField(
+    registration_at = models.DateTimeField(
         auto_now_add=True,
         db_index=True,
         verbose_name='дата и время регистрации'
     )
-    call_time = models.DateTimeField(
+    call_at = models.DateTimeField(
         blank=True,
         null=True,
         db_index=True,
         verbose_name='дата и время звонка'
     )
-    delivery_time = models.DateTimeField(
+    delivery_at = models.DateTimeField(
         blank=True,
         null=True,
         db_index=True,
         verbose_name='дата и время доставки'
     )
-    order_fulfilling_restaurant = models.ForeignKey(
+    fulfilling_restaurant = models.ForeignKey(
         Restaurant,
         related_name='orders',
         verbose_name="ресторан выполняющий заказ",
@@ -255,7 +255,7 @@ class OrderItem(models.Model):
         default=1,
         validators=[MinValueValidator(1)]
         )
-    order_total_cost = models.DecimalField(
+    order_position_total_cost = models.DecimalField(
         decimal_places=2,
         max_digits=6,
         validators=[MinValueValidator(0)],

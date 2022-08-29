@@ -112,7 +112,7 @@ def view_orders(request):
     order_items = OrderItem.objects.select_related("product")
     pending_orders = Order.custom_manager\
         .prefetch_related(Prefetch('items', queryset=order_items))\
-        .prefetch_related('order_fulfilling_restaurant')\
+        .prefetch_related('fulfilling_restaurant')\
         .calculate_total_cost_of_order_items()\
         .order_by('id')\
         .filter(status="Необработанный")\
