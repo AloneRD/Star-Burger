@@ -27,8 +27,6 @@ def calculate_distances(order, available_restaurants_in_order, addresses_cache):
 
     available_restaurants = []
     for available_restaurant in available_restaurants_in_order:
-        if not available_restaurant:
-            continue
         restaurans_coordinates = (
             available_restaurant.lon,
             available_restaurant.lat
