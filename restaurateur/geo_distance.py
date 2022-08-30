@@ -4,6 +4,10 @@ from geopy import distance
 import requests
 
 
+class CalculateDistanceError(TypeError):
+    pass
+
+
 def calculate_distances(order, available_restaurants_in_order, addresses_cache):
     address_cache = check_cache(order.address, addresses_cache)
     if not address_cache:
@@ -31,13 +35,12 @@ def calculate_distances(order, available_restaurants_in_order, addresses_cache):
             available_restaurant.lon,
             available_restaurant.lat
             )
-        if None not in delivery_coordinates:
-            restaurant_distance = distance.distance(
-                restaurans_coordinates,
-                delivery_coordinates
-                )
-        else:
-            restaurant_distance = "Не удалось расчитать расстояние"
+        if delivery_coordinates is None or None in delivery_coordinates:
+            raise CalculateDistanceError('Не удалось расчитать расстояние')
+        restaurant_distance = distance.distance(
+            restaurans_coordinates,
+            delivery_coordinates
+            )
         available_restaurants.append(
             f"{available_restaurant}\n{restaurant_distance}"
             )

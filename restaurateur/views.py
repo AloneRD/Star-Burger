@@ -14,7 +14,7 @@ from foodcartapp.models import Product,\
                                RestaurantMenuItem,\
                                GeoPositionAddress
 
-from restaurateur.geo_distance import calculate_distances
+from restaurateur.geo_distance import calculate_distances, CalculateDistanceError
 
 
 class Login(forms.Form):
@@ -123,11 +123,14 @@ def view_orders(request):
         ]
     addresses = GeoPositionAddress.objects.filter(address__in=orders_addresses)
     for pending_order in pending_orders:
-        pending_order = calculate_distances(
-            pending_order,
-            pending_order.available_restaurants,
-            addresses
-            )
+        try:
+            pending_order = calculate_distances(
+                pending_order,
+                pending_order.available_restaurants,
+                addresses
+                )
+        except CalculateDistanceError as message:
+            pending_order.available_restaurants.append(message)
     return render(request, template_name='order_items.html', context={
         'orders': pending_orders,
     })
