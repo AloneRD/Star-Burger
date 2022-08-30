@@ -147,17 +147,15 @@ class CustomQuerySet(models.QuerySet):
                     menu_item.restaurant
                     for menu_item in restaurants_menu
                     if menu_item.product == product
-                    ]
+                ]
                 available_restaurants_in_order.append(
-                    available_restaurants_for_product
+                    set(available_restaurants_for_product)
                     )
-            if len(available_restaurants_in_order) > 1:
-                for restaurant_number, restaurant in enumerate(available_restaurants_in_order):
-                    try:
-                        available_restaurants_in_order[restaurant_number] = list(set(available_restaurants_in_order[restaurant_number]) & set(available_restaurants_in_order[restaurant_number+1]))
-                    except IndexError:
-                        pass
-            order.available_restaurants = available_restaurants_in_order[0]
+            order.available_restaurants = list(
+                available_restaurants_in_order[0].intersection(
+                    *available_restaurants_in_order[1:]
+                    )
+                )
         return orders
 
 
