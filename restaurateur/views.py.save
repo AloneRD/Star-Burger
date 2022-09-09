@@ -73,6 +73,7 @@ def is_manager(user):
 def view_products(request):
     restaurants = list(Restaurant.objects.order_by('name'))
     products = list(Product.objects.prefetch_related('menu_items'))
+
     default_availability = {restaurant.id: False for restaurant in restaurants}
     products_with_restaurants = []
     for product in products:
@@ -116,11 +117,11 @@ def view_orders(request):
         .order_by('id')\
         .filter(status="Необработанный")\
         .find_available_restaurans(restaurants_menu)
-    orders_addresses = [
+   
+   orders_addresses = [
         pending_order.address
         for pending_order in pending_orders
         ]
-
     addresses = GeoPositionAddress.objects.filter(address__in=orders_addresses)
     for pending_order in pending_orders:
         try:

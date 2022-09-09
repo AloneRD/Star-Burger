@@ -150,6 +150,7 @@ Parcel будет следить за файлами в каталоге `bundle
 - `ALLOWED_HOSTS` — [см. документацию Django](https://docs.djangoproject.com/en/3.1/ref/settings/#allowed-hosts)
 - `YANDEX_GEOCODER_TOKEN` — ключ API Yandex геокодер 
 - `ROLLBAR_TOKEN` — access tokenк Rollbar 
+- `DB_URL`- URL для подключения к Вашей СУБД  [см.тут](https://github.com/jazzband/dj-database-url#url-schema)
 
 ## Цели проекта
 
