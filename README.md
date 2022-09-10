@@ -152,6 +152,8 @@ Parcel будет следить за файлами в каталоге `bundle
 - `ROLLBAR_TOKEN` — access tokenк Rollbar 
 - `DB_URL`- URL для подключения к Вашей СУБД  [см.тут](https://github.com/jazzband/dj-database-url#url-schema)
 
+Сайт развернут и доступен по адресу https://dv-star-burger.site/
+
 ## Цели проекта
 
 Код написан в учебных целях — это урок в курсе по Python и веб-разработке на сайте [Devman](https://dvmn.org). За основу был взят код проекта [FoodCart](https://github.com/Saibharath79/FoodCart).
