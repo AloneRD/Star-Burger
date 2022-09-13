@@ -127,7 +127,7 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "bundles"),
 ]
 ROLLBAR = {
-     'access_token': env('ROLLBAR_TOKEN'),
+     'access_token': env('ROLLBAR_TOKEN', ''),
      'environment': env('ROLLBAR_ENVIRONMENT', 'development'),
      'root': BASE_DIR,
  }
