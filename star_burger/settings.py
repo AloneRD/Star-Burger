@@ -128,6 +128,6 @@ STATICFILES_DIRS = [
 ]
 ROLLBAR = {
      'access_token': env('ROLLBAR_TOKEN'),
-     'environment': 'development' if DEBUG else 'production',
+     'environment': env('ROLLBAR_ENVIRONMENT'),
      'root': BASE_DIR,
  }
