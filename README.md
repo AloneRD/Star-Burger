@@ -149,8 +149,11 @@ Parcel будет следить за файлами в каталоге `bundle
 - `SECRET_KEY` — секретный ключ проекта. Он отвечает за шифрование на сайте. Например, им зашифрованы все пароли на вашем сайте.
 - `ALLOWED_HOSTS` — [см. документацию Django](https://docs.djangoproject.com/en/3.1/ref/settings/#allowed-hosts)
 - `YANDEX_GEOCODER_TOKEN` — ключ API Yandex геокодер 
-- `ROLLBAR_TOKEN` — access tokenк Rollbar 
+- `ROLLBAR_TOKEN` — access tokenк Rollbar. По умолчанию пустой 
 - `DB_URL`- URL для подключения к Вашей СУБД  [см.тут](https://github.com/jazzband/dj-database-url#url-schema)
+- `ROLLBAR_ENVIRONMENT` - настраивает среду ROLLBAR. Возможные значения development, production. По умолчанию используется "development"
+
+Сайт развернут и доступен по адресу https://dv-star-burger.site/
 
 ## Цели проекта
 

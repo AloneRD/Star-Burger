@@ -42,7 +42,8 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'debug_toolbar.middleware.DebugToolbarMiddleware',
-    'rollbar.contrib.django.middleware.RollbarNotifierMiddleware'
+    'rollbar.contrib.django.middleware.RollbarNotifierMiddlewareOnly404',
+    'rollbar.contrib.django.middleware.RollbarNotifierMiddlewareExcluding404'
 ]
 
 ROOT_URLCONF = 'star_burger.urls'
@@ -127,7 +128,7 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "bundles"),
 ]
 ROLLBAR = {
-     'access_token': env('ROLLBAR_TOKEN'),
-     'environment': env('ROLLBAR_ENVIRONMENT'),
+     'access_token': env('ROLLBAR_TOKEN', ''),
+     'environment': env('ROLLBAR_ENVIRONMENT', 'development'),
      'root': BASE_DIR,
  }
