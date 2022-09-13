@@ -151,6 +151,7 @@ Parcel будет следить за файлами в каталоге `bundle
 - `YANDEX_GEOCODER_TOKEN` — ключ API Yandex геокодер 
 - `ROLLBAR_TOKEN` — access tokenк Rollbar 
 - `DB_URL`- URL для подключения к Вашей СУБД  [см.тут](https://github.com/jazzband/dj-database-url#url-schema)
+- `ROLLBAR_ENVIRONMENT` - настраивает среду ROLLBAR. Возможные значения development, production. По умолчанию используется "development"
 
 ## Цели проекта
 
