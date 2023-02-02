@@ -4,6 +4,7 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.serializers import ModelSerializer
 from django.db import transaction
+from django.db.models import Prefetch
 
 from .models import Order
 from .models import OrderItem
@@ -63,34 +64,44 @@ def product_list_api(request):
 
 
 class OrderItemSerializer(ModelSerializer):
+    def to_representation(self, obj):
+        new_obj = {'product': obj.product.name, 'quantity':obj.quantity}
+        return new_obj
+        
     class Meta:
         model = OrderItem
         fields = ['product', 'quantity']
 
 
 class OrderSerializer(ModelSerializer):
-    products = OrderItemSerializer(many=True, allow_empty=False, write_only=True)
+    items = OrderItemSerializer(many=True, allow_empty=False)
 
     class Meta:
         model = Order
-        fields = ['firstname', 'lastname', 'phonenumber', 'address', 'products']
+        fields = ['firstname', 'lastname', 'phonenumber', 'address', 'items']
 
 
-@api_view(['POST'])
+@api_view(['POST', 'GET'])
 @transaction.atomic
-def register_order(request):
-    received_order = request.data
-    serializer = OrderSerializer(data=received_order)
-    serializer.is_valid(raise_exception=True)
-    new_order = Order.custom_manager.create(
-        firstname=serializer.validated_data['firstname'],
-        lastname=serializer.validated_data['lastname'],
-        phonenumber=serializer.validated_data['phonenumber'],
-        address=serializer.validated_data['address']
-    )
-    order_items = [OrderItem(order=new_order, **fields) for fields in serializer.validated_data['products']]
-    for order_item in order_items:
-        order_item.cost = order_item.quantity * order_item.product.price
-    OrderItem.objects.bulk_create(order_items)
+def order_api(request):
+    if request.method == 'GET':
+        order_items = OrderItem.objects.select_related("product")
+        queryset = Order.custom_manager\
+            .prefetch_related(Prefetch('items', queryset=order_items))
+        serializer = OrderSerializer(instance=queryset, many=True)
+    elif request.method == 'POST':
+        received_order = request.data
+        serializer = OrderSerializer(data=received_order)
+        serializer.is_valid(raise_exception=True)
+        new_order = Order.custom_manager.create(
+            firstname=serializer.validated_data['firstname'],
+            lastname=serializer.validated_data['lastname'],
+            phonenumber=serializer.validated_data['phonenumber'],
+            address=serializer.validated_data['address']
+        )
+        order_items = [OrderItem(order=new_order, **fields) for fields in serializer.validated_data['products']]
+        for order_item in order_items:
+            order_item.cost = order_item.quantity * order_item.product.price
+        OrderItem.objects.bulk_create(order_items)
 
     return Response(serializer.data)
