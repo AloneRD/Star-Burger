@@ -64,10 +64,6 @@ def product_list_api(request):
 
 
 class OrderItemSerializer(ModelSerializer):
-    def to_representation(self, obj):
-        new_obj = {'product': obj.product.name, 'quantity':obj.quantity}
-        return new_obj
-        
     class Meta:
         model = OrderItem
         fields = ['product', 'quantity']
@@ -79,6 +75,14 @@ class OrderSerializer(ModelSerializer):
     class Meta:
         model = Order
         fields = ['firstname', 'lastname', 'phonenumber', 'address', 'items']
+
+    def create(self, validated_data):
+        items = validated_data.pop('items')
+        order = Order.custom_manager.create(**validated_data)
+        for item in items:
+            item['order_position_total_cost'] = item['product'].price * item['quantity']
+            OrderItem.objects.create(order=order, **item)
+        return order
 
 
 @api_view(['POST', 'GET'])
@@ -92,16 +96,6 @@ def order_api(request):
     elif request.method == 'POST':
         received_order = request.data
         serializer = OrderSerializer(data=received_order)
-        serializer.is_valid(raise_exception=True)
-        new_order = Order.custom_manager.create(
-            firstname=serializer.validated_data['firstname'],
-            lastname=serializer.validated_data['lastname'],
-            phonenumber=serializer.validated_data['phonenumber'],
-            address=serializer.validated_data['address']
-        )
-        order_items = [OrderItem(order=new_order, **fields) for fields in serializer.validated_data['products']]
-        for order_item in order_items:
-            order_item.cost = order_item.quantity * order_item.product.price
-        OrderItem.objects.bulk_create(order_items)
-
+        serializer.is_valid()
+        serializer.save()
     return Response(serializer.data)
