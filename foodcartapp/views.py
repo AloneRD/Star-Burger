@@ -85,17 +85,20 @@ class OrderSerializer(ModelSerializer):
         return order
 
 
-@api_view(['POST', 'GET'])
+@api_view(['GET'])
+def get_orders_list(request):
+    order_items = OrderItem.objects.select_related("product")
+    queryset = Order.custom_manager\
+        .prefetch_related(Prefetch('items', queryset=order_items))
+    serializer = OrderSerializer(instance=queryset, many=True)
+    return Response(serializer.data)
+
+
+@api_view(['POST'])
 @transaction.atomic
-def order_api(request):
-    if request.method == 'GET':
-        order_items = OrderItem.objects.select_related("product")
-        queryset = Order.custom_manager\
-            .prefetch_related(Prefetch('items', queryset=order_items))
-        serializer = OrderSerializer(instance=queryset, many=True)
-    elif request.method == 'POST':
-        received_order = request.data
-        serializer = OrderSerializer(data=received_order)
-        serializer.is_valid()
-        serializer.save()
+def create_order(request):
+    received_order = request.data
+    serializer = OrderSerializer(data=received_order)
+    serializer.is_valid()
+    serializer.save()
     return Response(serializer.data)
