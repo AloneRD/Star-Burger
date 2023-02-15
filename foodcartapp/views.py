@@ -83,7 +83,17 @@ class OrderSerializer(ModelSerializer):
             item['order_position_total_cost'] = item['product'].price * item['quantity']
             OrderItem.objects.create(order=order, **item)
         return order
-
+    
+    def update(self, instance, validated_data):
+        instance.firstname = validated_data.get('firstname', instance.firstname)
+        instance.lastname = validated_data.get('lastname', instance.lastname)
+        instance.phonenumber = validated_data.get('phonenumber', instance.phonenumber)
+        instance.address = validated_data.get('address', instance.address)
+        for item in validated_data.get('items', instance.items.all()):
+            item['order_position_total_cost'] = item['product'].price * item['quantity']
+            OrderItem.objects.filter(order=instance).update(**item)
+        instance.save()
+        return instance
 
 @api_view(['GET'])
 def get_orders_list(request):
@@ -93,7 +103,6 @@ def get_orders_list(request):
     serializer = OrderSerializer(instance=queryset, many=True)
     return Response(serializer.data)
 
-
 @api_view(['POST'])
 @transaction.atomic
 def create_order(request):
@@ -101,4 +110,18 @@ def create_order(request):
     serializer = OrderSerializer(data=received_order)
     serializer.is_valid()
     serializer.save()
+    return Response(serializer.data)
+
+@api_view(['POST', 'GET'])
+@transaction.atomic
+def update_order(request, pk):
+    order_items = OrderItem.objects.select_related("product")
+    order = Order.custom_manager\
+        .prefetch_related(Prefetch('items', queryset=order_items)).get(id=pk)
+    if request.method == "GET":
+        serializer = OrderSerializer(instance=order)
+    elif request.method == "POST":
+        serializer = OrderSerializer(order, data=request.data)
+        serializer.is_valid()
+        serializer.save()
     return Response(serializer.data)
